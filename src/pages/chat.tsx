@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import '../styles/chat.css';
 import { User } from '../types/User'; // Import your User type
 import { Message } from '../types/Message'; // Import your Message type
@@ -7,6 +8,8 @@ import ToastService from '../services/toast';
 import { ToastContainer } from 'react-toastify';
 import { useUser } from '../context/UserContext';
 import { Match } from '../types/Match';
+
+const socket = io('http://localhost:8080');
 
 const ChatPage: React.FC = () => {
     const { user } = useUser();
@@ -23,53 +26,49 @@ const ChatPage: React.FC = () => {
                 setMatches(data);
             };
             fetchMatches();
-            // console.log('matches: ', matches);
         }
-    }, [matches, user]);
+    }, [user]);
 
     useEffect(() => {
         if (selectedMatch) {
-            // Fetch messages for the selected match
+            socket.emit('joinRoom', selectedMatch._id);
+
             const fetchMessages = async () => {
                 const response = await fetch(`http://localhost:8080/messages/match/${selectedMatch._id}`);
                 const data = await response.json();
-                console.log('data: ', data);
-                setMessages(data); // Set messages related to the selected match
+                setMessages(data);
             };
 
             fetchMessages();
+
+            socket.on('receiveMessage', (message: Message) => {
+                setMessages((prevMessages) => [...prevMessages, message]);
+            });
+
+            return () => {
+                socket.off('receiveMessage');
+            };
         } else {
-            setMessages([]); // Clear messages if no match is selected
+            setMessages([]);
         }
-    }, [selectedMatch]); // Dependency on selectedMatch
+    }, [selectedMatch]);
 
     const handleSendMessage = async () => {
         if (!newMessage || !selectedMatch) return;
 
-        // Determine the receiver based on the current user
         const receiver_id = user?._id === (selectedMatch.user1_id as User)._id
             ? (selectedMatch.user2_id as User)._id
             : (selectedMatch.user1_id as User)._id;
 
-        const response = await fetch('http://localhost:8080/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                match_id: selectedMatch._id,
-                sender_id: user?._id,
-                receiver_id: receiver_id,
-                content: newMessage,
-            }),
-        });
+        const messageData = {
+            match_id: selectedMatch._id,
+            sender_id: user?._id,
+            receiver_id: receiver_id,
+            content: newMessage,
+        };
 
-        if (response.ok) {
-            const message = await response.json();
-            setMessages((prevMessages) => [...prevMessages, message]);
-            setNewMessage('');
-            ToastService.success('Message sent!');
-        } else {
-            ToastService.error('Failed to send message.');
-        }
+        socket.emit('sendMessage', messageData);
+        setNewMessage('');
     };
 
     return (
@@ -96,7 +95,7 @@ const ChatPage: React.FC = () => {
                             );
                         })
                     ) : (
-                        <p>No matches found.</p> // Fallback message
+                        <p>No matches found.</p>
                     )}
                 </div>
                 <div className="message-area">
