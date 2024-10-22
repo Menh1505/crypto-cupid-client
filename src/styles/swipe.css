@@ -1,0 +1,29 @@
+/* src/styles/SwipePage.css */
+.swipe-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.user-card {
+    text-align: center;
+    margin: 20px;
+}
+
+.user-card img {
+    width: 200px;
+    height: 200px;
+    border-radius: 10px;
+}
+
+.swipe-buttons {
+    margin-top: 20px;
+}
+
+.swipe-buttons button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+}

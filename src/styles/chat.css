@@ -1,0 +1,77 @@
+.chat-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.chat-container {
+    display: flex;
+    flex: 1;
+}
+
+.matches-list {
+    width: 250px; /* Adjust as needed */
+    border-right: 1px solid #ccc;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.match-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.match-item.active {
+    background-color: #f0f0f0; /* Highlight active match */
+}
+
+.message-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.message {
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.message.sent {
+    background-color: #007bff; /* Blue background for sent messages */
+    color: white; /* Optional: white text for contrast */
+    align-self: flex-end;
+}
+
+.message.received {
+    background-color: #f1f0f0; /* Grey background for received messages */
+    color: black; /* Optional: black text for contrast */
+}
+
+.message-input {
+    display: flex;
+}
+
+.message-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.message-input button {
+    padding: 10px;
+    margin-left: 5px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
